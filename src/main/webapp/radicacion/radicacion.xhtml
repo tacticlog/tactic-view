@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="#{msg.accion_nuevo}"
+                                                 icon="fa fa-check Fs14 White"
+                                                 actionListener="#{radicacionBacking.newAction}"
+                                                 process="@this" styleClass="PurpleButton" 
+                                                 update="consultaPanel toolbarTop consultaDataTable"/>
+                                <p:commandButton value="Procesar"
+                                                 icon="fa fa-bolt Fs14 White"
+                                                 actionListener="#{radicacionBacking.generateAction}"
+                                                 process="@this, consultaPanel" 
+                                                 update="consultaDataTable growl toolbarTop"
+                                                 styleClass="PurpleButton" 
+                                                 disabled="#{radicacionBacking.finished}"/>
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <h:panelGrid id="consultaPanel" width="100%">
+
+                            <p:fieldset legend="Parámetros">
+                                <h:panelGrid columns="4" width="100%">
+                                    <p:outputLabel value="Grupos de Archivos" for="gruposArchivosRadicadosId" />
+                                    <p:selectOneMenu id="gruposArchivosRadicadosId" 
+                                                     label="Grupos de Archivos" style="width:250px;"
+                                                     value="#{radicacionBacking.gruposArchivosRadicadosId}"
+                                                     filter="true" filterMatchMode="contains"
+                                                     required="true" >
+                                        <p:ajax update="tiposArchivoRadicadoId pnlFile" 
+                                                listener="#{radicacionBacking.changeGrupoArchivo}"/>
+                                        <f:selectItem itemLabel="-- SELECCIONE --" noSelectionOption="true"/>
+                                        <f:selectItems
+                                            value="#{radicacionBacking.gruposArchivosRadicadosItems}" />
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel value="Tipos de Archivos" for="tiposArchivoRadicadoId" />
+                                    <p:selectOneMenu id="tiposArchivoRadicadoId" 
+                                                     label="Tipos de Archivos" style="width:250px;"
+                                                     value="#{radicacionBacking.tiposArchivoRadicadoId}"
+                                                     filter="true" filterMatchMode="contains"
+                                                     required="true">
+                                        <p:ajax update="pnlFile"
+                                                listener="#{radicacionBacking.changeTipoArchivo}"/>
+                                        <f:selectItem itemLabel="-- SELECCIONE --" noSelectionOption="true"/>
+                                        <f:selectItems
+                                            value="#{radicacionBacking.tiposArchivoRadicadoItems}" />
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel value="El archivo tiene cabecera" 
+                                                   for="haveHeader" />
+                                    <p:selectBooleanCheckbox id="haveHeader" 
+                                                             value="#{radicacionBacking.haveHeader}"/>
+
+                                </h:panelGrid>
+
+                                <h:panelGrid id="pnlFile" columns="1" width="100%">
+                                    <p:fileUpload id="fileUpload"
+                                                  fileUploadListener="#{radicacionBacking.handleFileUpload}" 
+                                                  mode="advanced" dragDropSupport="false"
+                                                  sizeLimit="10000000" fileLimit="99" 
+                                                  allowTypes="#{radicacionBacking.allowTypes}" 
+                                                  cancelLabel="Cancelar" uploadLabel="Cargar" label="Examinar"
+                                                  disabled="#{radicacionBacking.allowTypes eq '-1'}"
+                                                  invalidFileMessage="Archivo Inválido" auto="true"
+                                                  update="growl"/>
+                                </h:panelGrid>
+                            </p:fieldset>
+
+                            <p:spacer />
+
+                            <p:dataTable id="consultaDataTable" var="ent"
+                                         value="#{radicacionBacking.listLog}"
+                                         emptyMessage="#{msg.msg_empty}" reflow="true" 
+                                         scrollable="true"
+                                         paginator="true" rows="20">
+
+                                <p:column headerText="Fila"
+                                          sortBy="#{ent.idOrdenVentaSecundaria}" 
+                                          width="10%">
+                                    <h:outputText value="#{ent.idOrdenVentaSecundaria}" />
+                                </p:column>
+                                <p:column headerText="Código de Error"
+                                          sortBy="#{ent.codigoMensaje}"
+                                          filterBy="#{ent.codigoMensaje}"
+                                          filterMatchMode="contains"
+                                          width="20%">
+                                    <h:outputText
+                                        value="#{ent.codigoMensaje}" />
+                                </p:column>
+                                <p:column headerText="Mensaje de Error"
+                                          sortBy="#{ent.mensaje}"
+                                          filterBy="#{ent.mensaje}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.mensaje}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function handleComplete(xhr, status, args) {
+                if (!args.validationFailed) {
+                    PF('dlgEstadosVar').hide();
+                }
+            }
+        </script>
+
+    </ui:define>
+
+</ui:composition>

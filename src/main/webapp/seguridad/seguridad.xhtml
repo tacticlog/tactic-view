@@ -1,0 +1,204 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:tabView id="tab">
+                            <p:tab title="Roles">
+
+                                <p:dataTable id="consultaDataTable" var="ent"
+                                             value="#{seguridadBacking.rolesModel}" rowKey="#{ent.id}"
+                                             emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                             selection="#{seguridadBacking.rolesSelected}"
+                                             selectionMode="single"
+                                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                             paginator="true" rows="20">
+
+                                    <p:ajax event="rowSelect" listener="#{seguridadBacking.selectDetailAction}"
+                                            update="form:tab:pnlRolesDetalle" />
+
+                                    <p:column headerText="Rol"
+                                              sortBy="#{ent.rol}" filterBy="#{ent.rol}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.rol}" />
+                                    </p:column>
+
+                                    <p:column headerText="Activo"
+                                              sortBy="#{ent.activo}"
+                                              style="width:20%">
+                                        <h:outputText
+                                            value="#{ent.activo?'SI':'NO'}" />
+                                    </p:column>
+
+                                </p:dataTable>
+
+                                <p:spacer/>
+
+                                <p:toolbar id="toolbarTop">
+                                    <f:facet name="left">
+                                        <p:commandButton value="Nuevo"
+                                                         actionListener="#{seguridadBacking.newRolesAction}"
+                                                         icon="fa fa-check Fs14 White"
+                                                         process="@this"
+                                                         update=":form:tab:pnlRolesDetalle"
+                                                         styleClass="PurpleButton"/>
+                                        <p:commandButton value="Aceptar"
+                                                         actionListener="#{seguridadBacking.saveRolesAction}"
+                                                         icon="fa fa-bolt Fs14 White"
+                                                         process="@this, pnlRolesDetalle"
+                                                         update=":form:growl consultaDataTable"
+                                                         styleClass="PurpleButton"/>
+                                    </f:facet>
+                                </p:toolbar>
+
+                                <p:spacer />
+
+                                <p:fieldset id="pnlRolesDetalle" legend="Detalle">
+                                    <h:panelGrid width="100%" columns="2">
+                                        <p:outputLabel value="Nombre" for="nombre"/>
+                                        <p:inputText id="nombre" label="Nombre" required="true" 
+                                                     style="width:300px;"
+                                                     value="#{seguridadBacking.rolesSelected.rol}"/>
+
+                                        <p:outputLabel value="Activo"/>
+                                        <p:selectBooleanCheckbox 
+                                            value="#{seguridadBacking.rolesSelected.activo}"/>
+
+                                        <p:outputLabel value="Menus"/>
+                                        <p:pickList id="picRole" var="row" effect="bounce"
+                                                    value="#{seguridadBacking.listMenus}" 
+                                                    itemValue="#{row}" itemLabel="#{row.nombre}" showSourceFilter="true"
+                                                    showTargetFilter="true" filterMatchMode="contains"
+                                                    converter="entityConverter">
+
+                                            <f:facet name="sourceCaption">Disponibles</f:facet>
+                                            <f:facet name="targetCaption">Seleccionados</f:facet>
+                                        </p:pickList>
+                                    </h:panelGrid>
+
+                                </p:fieldset>
+                            </p:tab>
+
+                            <p:tab title="Usuarios">
+                                <p:dataTable id="usuariosTable" var="ent"
+                                             value="#{seguridadBacking.usuariosModel}" rowKey="#{ent.id}"
+                                             emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                             selection="#{seguridadBacking.usuariosSelected}"
+                                             selectionMode="single"
+                                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                                             paginator="true" rows="20">
+
+                                    <p:ajax event="rowSelect" listener="#{seguridadBacking.selectUsuariosDetailAction}"
+                                            update="form:tab:pnlUsuariosDetalle" /> 
+
+                                    <p:column headerText="Usuario"
+                                              sortBy="#{ent.usuario}" filterBy="#{ent.usuario}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.usuario}" />
+                                    </p:column>
+
+                                    <p:column headerText="Correo"
+                                              sortBy="#{ent.email}" filterBy="#{ent.email}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.email}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nombres"
+                                              sortBy="#{ent.nombres}" filterBy="#{ent.nombres}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.nombres}" />
+                                    </p:column>
+
+                                    <p:column headerText="Apellidos"
+                                              sortBy="#{ent.apellidos}" filterBy="#{ent.apellidos}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.apellidos}" />
+                                    </p:column>
+
+                                    <p:column headerText="Activo"
+                                              sortBy="#{ent.activo}"
+                                              style="width:10%">
+                                        <h:outputText
+                                            value="#{ent.activo?'SI':'NO'}" />
+                                    </p:column>
+
+                                </p:dataTable>
+
+                                <p:spacer/>
+
+                                <p:toolbar>
+                                    <f:facet name="left">
+                                        <p:commandButton value="Nuevo"
+                                                         actionListener="#{seguridadBacking.newUsuariosAction}"
+                                                         icon="fa fa-check Fs14 White"
+                                                         process="@this"
+                                                         update=":form:tab:pnlUsuariosDetalle"
+                                                         styleClass="PurpleButton"/>
+                                        <p:commandButton value="Aceptar"
+                                                         actionListener="#{seguridadBacking.saveUsuariosAction}"
+                                                         icon="fa fa-bolt Fs14 White"
+                                                         process="@this, pnlUsuariosDetalle"
+                                                         update=":form:growl usuariosTable"
+                                                         styleClass="PurpleButton"/>
+                                    </f:facet>
+                                </p:toolbar>
+
+                                <p:spacer />
+
+                                <p:fieldset id="pnlUsuariosDetalle" legend="Detalle">
+                                    <h:panelGrid width="100%" columns="2">
+                                        <p:outputLabel value="Usuario" for="usuario"/>
+                                        <p:inputText id="usuario" label="Nombre" required="true" 
+                                                     style="width:300px;"
+                                                     value="#{seguridadBacking.usuariosSelected.usuario}"/>
+
+                                        <p:outputLabel value="Correo Electrónico" for="email"/>
+                                        <p:inputText id="email" label="Correo Electrónico" required="true" 
+                                                     style="width:300px;"
+                                                     value="#{seguridadBacking.usuariosSelected.email}"/>
+
+                                        <p:outputLabel value="Nombres" for="nombres"/>
+                                        <p:inputText id="nombres" label="Nombres" required="true" 
+                                                     style="width:300px;"
+                                                     value="#{seguridadBacking.usuariosSelected.nombres}"/>
+
+                                        <p:outputLabel value="Apellidos" for="apellidos"/>
+                                        <p:inputText id="apellidos" label="Apellidos" required="true" 
+                                                     style="width:300px;"
+                                                     value="#{seguridadBacking.usuariosSelected.apellidos}"/>
+
+                                        <p:outputLabel value="Activo"/>
+                                        <p:selectBooleanCheckbox 
+                                            value="#{seguridadBacking.usuariosSelected.activo}"/>
+                                        <p:outputLabel value="Roles"/>
+                                        <p:pickList var="row" effect="bounce"
+                                                    value="#{seguridadBacking.duaListRoles}" 
+                                                    itemValue="#{row}" itemLabel="#{row.rol}" showSourceFilter="true"
+                                                    showTargetFilter="true" filterMatchMode="contains"
+                                                    converter="entityConverter">
+
+                                            <f:facet name="sourceCaption">Disponibles</f:facet>
+                                            <f:facet name="targetCaption">Seleccionados</f:facet>
+                                        </p:pickList>
+                                    </h:panelGrid>
+                                </p:fieldset>
+                            </p:tab>
+                        </p:tabView>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

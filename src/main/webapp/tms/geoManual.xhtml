@@ -1,0 +1,238 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect TexAlCenter">
+                    <br />
+                    <h2>Georeferenciación Manual</h2>
+
+                    <h:form id="form">
+                        <p:growl id="growl" showDetail="true" />
+
+                        <div class="Container100">
+                            <div class="ContainerIndent">
+                                <div class="Card ShadowEffect HeiAutoOnMobile"
+                                     style="height: 200px;">
+
+                                    <p:panel id="pnlParametros" header="PERIODO"
+                                             style="height:100%; min-height:200px;"
+                                             styleClass="HeiAutoOnMobile">
+                                        <h:panelGrid width="100%" columns="4">
+                                            <p:outputLabel value="Paises" for="pais" />
+                                            <p:selectOneMenu id="pais" required="true"
+                                                             value="#{solicitudesBacking.idPais}" style="width:200px;">
+                                                <p:ajax update="departamento" />
+                                                <f:selectItem itemLabel="Seleccione"
+                                                              noSelectionOption="true" />
+                                                <f:selectItems value="#{solicitudesBacking.itemsPaises}" />
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel value="Departamento" for="departamento" />
+                                            <p:selectOneMenu id="departamento" required="true"
+                                                             value="#{solicitudesBacking.idDepartamento}"
+                                                             style="width:200px;" filter="true"
+                                                             filterMatchMode="contains">
+                                                <p:ajax update="ciudad" />
+                                                <f:selectItem itemLabel="Seleccione"
+                                                              noSelectionOption="true" />
+                                                <f:selectItems
+                                                    value="#{solicitudesBacking.getItemsDepartamentos(solicitudesBacking.idPais)}" />
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel value="Ciudad" for="ciudad" />
+                                            <p:selectOneMenu id="ciudad" value="#{solicitudesBacking.idCiudades}"
+                                                             style="width:200px;" filter="true"
+                                                             filterMatchMode="contains">
+                                                <f:selectItem itemLabel="Seleccione"
+                                                              noSelectionOption="true" />
+                                                <f:selectItems
+                                                    value="#{solicitudesBacking.getItemsCiudades(solicitudesBacking.idDepartamento)}" />
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel value="Estado" for="estado" />
+                                            <p:selectOneMenu id="estado" value="#{solicitudesBacking.estado}"
+                                                             style="width:200px;" filter="true"
+                                                             filterMatchMode="contains" required="true">
+                                                <f:selectItem itemLabel="Seleccione"
+                                                              noSelectionOption="true" />
+                                                <f:selectItems
+                                                    value="#{solicitudesBacking.itemsEstadosSolicitud}" />
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel value="Tipo" for="tipoSolicitud" />
+                                            <p:selectOneMenu id="tipoSolicitud" value="#{solicitudesBacking.tipoSolicitud}"
+                                                             style="width:200px;" filter="true"
+                                                             filterMatchMode="contains" required="true">
+                                                <f:selectItem itemLabel="Seleccione"
+                                                              noSelectionOption="true" />
+                                                <f:selectItems
+                                                    value="#{solicitudesBacking.itemsTiposSolicitud}" />
+                                            </p:selectOneMenu>
+
+                                            <p:commandButton value="Buscar" update="singleDT growl"
+                                                             actionListener="#{solicitudesBacking.searchAction}"
+                                                             styleClass="PurpleButton" 
+                                                             process="@this,pnlParametros"/>
+                                        </h:panelGrid>
+                                    </p:panel>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="Container100">
+                            <div class="ContainerIndent">
+                                <div class="Card ShadowEffect HeiAutoOnMobile"
+                                     style="min-height: 816px;">
+                                    <h2 class="CardTopic">
+                                        <i class="icon-google132 Fs20 Fleft MarRight10 OvHidden"></i>
+                                        Resultados
+                                    </h2>
+                                    <div class="Separator"></div>
+
+                                    <p:dataTable id="singleDT" var="row"
+                                                 value="#{solicitudesBacking.datamodel}" selectionMode="single"
+                                                 selection="#{solicitudesBacking.entity}" rowKey="#{row.id}"
+                                                 rows="20" paginator="true"
+                                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                 rowsPerPageTemplate="6,12,24,48,60,72"
+                                                 emptyMessage="No existen resultados" reflow="true">
+
+                                        <p:column headerText="Ciudad" filterBy="#{row.nombreMunicipio}"
+                                                  filterMatchMode="contains">
+                                            <h:outputText value="#{row.nombreMunicipio}" />
+                                        </p:column>
+
+                                        <p:column headerText="Dirección" filterBy="#{row.direccion}"
+                                                  filterMatchMode="contains">
+                                            <h:outputText value="#{row.direccion}" />
+                                        </p:column>
+
+                                        <p:column headerText="Destinatario" filterBy="#{row.nombreDestinatario}"
+                                                  filterMatchMode="contains">
+                                            <h:outputText value="#{row.nombreDestinatario}" />
+                                        </p:column>
+
+                                        <p:column style="width: 150px">
+                                            <p:commandButton value="Asignar Dirección"
+                                                             update=":form:dlgMapId" oncomplete="updateCoord();"
+                                                             action="#{solicitudesBacking.searchDetailAction}"
+                                                             process="@this,:form:singleDT">
+                                                <f:setPropertyActionListener value="#{row}"
+                                                                             target="#{solicitudesBacking.entity}" />
+                                            </p:commandButton>
+                                        </p:column>
+
+                                    </p:dataTable>
+                                </div>
+                            </div>
+                        </div>
+                        <p:dialog id="dlgMapId" widgetVar="dlgMapVar"
+                                  header="Asignar Direción" width="1000">
+
+                            <h:panelGrid id="pnlCoords" width="100%" columns="4">
+                                <h:outputLabel value="Ciudad" />
+                                <p:inputText id="nuevaCiudad" value="#{solicitudesBacking.nomMunicipio}"
+                                             readonly="true" style="width:350px;"/>
+
+                                <h:outputLabel value="Dirección" />
+                                <p:inputText value="#{solicitudesBacking.entity.direccion}"
+                                             readonly="true" style="width:350px;"/>
+
+                                <h:outputLabel value="Longitud" />
+                                <p:inputText id="lng" readonly="true" required="true" style="width:350px;"/>
+
+                                <h:outputLabel value="Latitud" />
+                                <p:inputText id="lat" readonly="true" required="true" style="width:350px;"/>
+
+                                <h:outputLabel value="Dirección sugerida" />
+                                <p:inputText id="direccionSugeridaGeoReferenciacionManual"
+                                             value="#{solicitudesBacking.entity.direccionSugeridaGeoReferenciacionManual}"
+                                             required="true" style="width:350px;"/>
+
+                                <h:outputLabel value="Dirección a buscar" />
+                                <p:inputText id="nuevaDireccion" value="#{solicitudesBacking.nuevaDireccion}"
+                                             readonly="false" style="width:350px;"/>
+
+                                <h:outputLabel value="" />
+                                <h:panelGrid columns="2">
+                                    <p:commandButton value="Buscar"
+                                                     icon="ui-icon-search" onclick="geocode();" type="button"
+                                                     process="@this,dlgMapId" 
+                                                     styleClass="PurpleButton" />
+                                    <p:commandButton value="Actualizar" update=":form"
+                                                     oncomplete="handleComplete(xhr, status, args);"
+                                                     actionListener="#{solicitudesBacking.updateAction}"
+                                                     process="@this,dlgMapId" 
+                                                     styleClass="PurpleButton" />
+                                </h:panelGrid>
+
+                                <h:inputHidden id="lngH" value="#{solicitudesBacking.entity.cx}"/>
+                                <h:inputHidden id="latH" value="#{solicitudesBacking.entity.cy}"/>
+
+                            </h:panelGrid>
+
+                            <p:gmap id="gmapId" center="#{solicitudesBacking.center}"
+                                    zoom="#{solicitudesBacking.zoom}" type="ROADMAP" model="#{solicitudesBacking.emptyModel}"
+                                    style="width:100%;height:400px" widgetVar="gmapVar"
+                                    onPointClick="handlePointClick(event);">
+                                <p:ajax event="geocode" listener="#{solicitudesBacking.onGeocode}" update="@this" />
+                            </p:gmap>
+
+                        </p:dialog>
+
+                    </h:form>
+
+                    <script type="text/javascript">
+                        var currentMarker = null;
+                        function handlePointClick(event) {
+                            document.getElementById('form:lat').value = event.latLng.lat();
+                            document.getElementById('form:lng').value = event.latLng.lng();
+                            document.getElementById('form:latH').value = event.latLng.lat();
+                            document.getElementById('form:lngH').value = event.latLng.lng();
+
+                            if (currentMarker !== null) {
+                                currentMarker.setMap(null);
+                            }
+
+                            currentMarker = new google.maps.Marker({
+                                position: new google.maps.LatLng(event.latLng.lat(), event.latLng.lng())
+                            });
+
+                            PF('gmapVar').addOverlay(currentMarker);
+                        }
+
+                        function handleComplete(xhr, status, args) {
+                            if (args.validationFailed) {
+                                PF('dlgMapVar').jq.effect("shake", {times: 5}, 100);
+                            } else {
+                                PF('dlgMapVar').hide();
+                            }
+                        }
+
+                        function geocode() {
+                            var direccion = document.getElementById('form:nuevaDireccion').value
+                                    + "," + document.getElementById('form:nuevaCiudad').value;
+                            PF('gmapVar').geocode(direccion);
+                        }
+
+                        function updateCoord() {
+                            document.getElementById('form:lat').value = document.getElementById('form:latH').value;
+                            document.getElementById('form:lng').value = document.getElementById('form:lngH').value;
+                            PF('dlgMapVar').show();
+                        }
+                    </script>
+
+                    <br /> <br />
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

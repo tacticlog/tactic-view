@@ -1,0 +1,44 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="Aceptar"
+                                                 icon="fa fa-check Fs14 White"
+                                                 actionListener="#{seguridadBacking.changeAction}"
+                                                 process="@this, panel" update="growl"
+                                                 styleClass="PurpleButton"/>
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <h:panelGrid id="panel" width="100%" columns="2">
+                            <p:outputLabel for="password1" value="Nueva Clave"/>
+                            <p:password id="password1" required="true" label="Nueva Clave"
+                                        value="#{seguridadBacking.clave}" match="password2"/>
+                            <p:outputLabel for="password2" value="Confirmar Clave"/>
+                            <p:password id="password2" required="true"
+                                        label="Confirmar Clave"
+                                        value="#{seguridadBacking.clave}"/>
+                        </h:panelGrid>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+    </ui:define>
+
+</ui:composition>

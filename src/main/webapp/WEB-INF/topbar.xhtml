@@ -1,0 +1,31 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets">
+
+
+    <div id="layout-topbar">
+        <div id="logo" class="Fleft">
+            <a id="mobile-menu-button"
+               class="Fright ShowOnMobile ripplelink Unselectable ShadowEffect"><i
+                    class="icon-add186"></i></a>
+            <div style="height: 60px; line-height: 60px; text-align: center;">
+                <h:outputLabel value="Tactic Logistics"
+                               style="font-family:roboto_condensedregular;font-size:22px;" />
+            </div>
+        </div>
+
+        <a class="ripplelink WhiteBlue Fright ShowOnMobile" id="show-top-menu"><i
+                class="icon-show8"></i></a>
+
+        <ul id="title" class="Fleft">
+            <div style="height: 40px; line-height: 40px; text-align: center;">
+                <h:outputLabel value="#{menuBacking.title}"
+                               style="font-family:roboto_condensedregular;font-size:28px;" />
+            </div>
+        </ul>
+
+        
+    </div>
+
+</ui:composition>

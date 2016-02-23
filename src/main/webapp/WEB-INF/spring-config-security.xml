@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/security"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    
+    <http auto-config="false" entry-point-ref="authenticationEntryPoint"
+          access-decision-manager-ref="affirmativeBased">
+        
+        <access-denied-handler error-page="/public/login.jsf"/>
+
+        <custom-filter position="FORM_LOGIN_FILTER"
+                       ref="usernamePasswordAuthenticationFilter" />
+        <custom-filter before="ANONYMOUS_FILTER" ref="anonymousAuthFilter" />
+        <custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="filterSecurityInterceptor" />
+
+        <session-management>
+            <concurrency-control max-sessions="1"
+                                 error-if-maximum-exceeded="false" expired-url="/public/login.jsf" />
+        </session-management>
+
+        <logout invalidate-session="true"
+                delete-cookies="JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"
+                logout-success-url="/public/login.jsf" logout-url="/j_spring_security_logout" />
+        
+        <csrf disabled="true"/>
+
+    </http>
+
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider ref="daoAuthenticationProvider" />
+    </authentication-manager>
+
+    <beans:bean id="daoAuthenticationProvider"
+                class="com.tacticlogistics.crm.view.security.AbstractUserDetailsAuthenticationProviderCustom">
+        <beans:property name="userDetailsService" ref="userDetailsService" />
+        <beans:property name="passwordEncoder" ref="passwordEncoder" />
+    </beans:bean>
+
+    <beans:bean id="userDetailsService"
+                class="com.tacticlogistics.crm.view.security.UserDetailsServiceCustom" />
+
+    <beans:bean id="authenticationEntryPoint"
+                class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <beans:constructor-arg value="/public/login.jsf"/>
+    </beans:bean>
+
+    <beans:bean id="concurrencyFilter"
+                class="org.springframework.security.web.session.ConcurrentSessionFilter">
+        <beans:constructor-arg name="sessionRegistry"
+                               ref="sessionRegistry" />
+        <beans:constructor-arg name="expiredUrl"
+                               value="/public/login.jsf" />
+    </beans:bean>
+
+    <beans:bean id="usernamePasswordAuthenticationFilter"
+                class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        <beans:property name="sessionAuthenticationStrategy"
+                        ref="sas" />
+        <beans:property name="authenticationManager" ref="authenticationManager" />
+    </beans:bean>
+
+    <beans:bean id="sas"
+                class="org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy">
+        <beans:constructor-arg name="sessionRegistry"
+                               ref="sessionRegistry" />
+        <beans:property name="maximumSessions" value="1" />
+        <beans:property name="exceptionIfMaximumExceeded"
+                        value="true" />
+    </beans:bean>
+
+    <beans:bean id="sessionRegistry"
+                class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+    <beans:bean id="rememberMeFilter"
+                class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
+        <beans:constructor-arg ref="authenticationManager"/>
+        <beans:constructor-arg ref="rememberMeServices"/>
+    </beans:bean>
+
+    <beans:bean id="anonymousAuthFilter"
+                class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
+        <beans:constructor-arg value="key"/>
+    </beans:bean>
+
+    <beans:bean id="affirmativeBased"
+                class="org.springframework.security.access.vote.AffirmativeBased">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:bean class="org.springframework.security.access.vote.RoleVoter">
+                    <beans:property name="rolePrefix">
+                        <beans:value></beans:value>
+                    </beans:property>
+                </beans:bean>
+                <beans:bean
+                    class="org.springframework.security.access.vote.AuthenticatedVoter" />
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+
+    <beans:bean id="securityMetadataSourceCustom"
+                class="com.tacticlogistics.crm.view.security.FilterInvocationSecurityMetadataSourceSoporte" />
+
+    <beans:bean id="filterSecurityInterceptor"
+                class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+        <beans:property name="authenticationManager" ref="authenticationManager" />
+        <beans:property name="accessDecisionManager" ref="affirmativeBased" />
+        <beans:property name="securityMetadataSource" ref="securityMetadataSourceCustom" />
+    </beans:bean>
+
+    <beans:bean id="rememberMeServices"
+                class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+        <beans:constructor-arg value="key"/>
+        <beans:constructor-arg ref="userDetailsService"/>
+    </beans:bean>
+    
+    <beans:bean id="passwordEncoder"
+                class="org.springframework.security.authentication.encoding.Md5PasswordEncoder">
+    </beans:bean>
+
+</beans:beans>

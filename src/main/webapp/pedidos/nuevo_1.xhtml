@@ -1,0 +1,317 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="#{msg.accion_guardar}"
+                                                 icon="fa fa-check Fs14 White"
+                                                 actionListener="#{pedidosBacking.saveAction}"
+                                                 process="@this flsBasicos" styleClass="PurpleButton" 
+                                                 update="growl"/>
+                                <p:commandButton value="#{msg.accion_regresar}"
+                                                 icon="fa fa-reply Fs14 White"
+                                                 action="#{pedidosBacking.returnAction}"
+                                                 process="@this" styleClass="PurpleButton" />
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <p:fieldset id="flsBasicos" legend="Datos Básicos">
+                            <h:panelGrid columns="4" width="100%">
+
+                                <p:outputLabel value="Cliente" for="clientes" />
+                                <p:selectOneMenu id="clientes" required="true"
+                                                 label="Cliente" style="width:250px;"
+                                                 value="#{pedidosBacking.idClientes}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <p:ajax update="destinatarios"/>
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listClientesActivos}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Destinatario" for="destinatarios" />
+                                <p:selectOneMenu id="destinatarios" required="true"
+                                                 label="Destinatario" style="width:250px;"
+                                                 value="#{pedidosBacking.selected.destinatarios.id}"
+                                                 filter="true" filterMatchMode="contains"
+                                                 valueChangeListener="#{pedidosBacking.destinatarioHandleChange}">
+                                    <p:ajax update="tabDetalle"/>
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.getListDestinatarioPorCliente(pedidosBacking.idClientes)}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Prioridad" for="prioridadesPedidos" />
+                                <p:selectOneMenu id="prioridadesPedidos" required="true"
+                                                 label="Prioridad" style="width:250px;"
+                                                 value="#{pedidosBacking.selected.prioridadesPedidos.id}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listPrioridadesPedidos}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Forma de Pago" for="tiposFormaPago" />
+                                <p:selectOneMenu id="tiposFormaPago" required="true"
+                                                 label="Forma de Pago" style="width:250px;"
+                                                 value="#{pedidosBacking.selected.tiposFormaPago.id}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listTiposFormaPago}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Fecha de Solicitud" for="fechaPedido" />
+                                <p:calendar id="fechaPedido"
+                                            value="#{pedidosBacking.selected.fechaDocumentoSolicitud}" required="true"
+                                            label="Fecha de Pedido" readonlyInput="false"
+                                            pattern="dd/MM/yyyy" showOn="button" navigator="true"
+                                            locale="es" maxdate="#{pedidosBacking.today}"/>
+
+                                <p:outputLabel value="Número de Solicitud" for="numeroDocumentoSolicitud" />
+                                <p:inputText id="numeroDocumentoSolicitud" required="true"
+                                             value="#{pedidosBacking.selected.numeroDocumentoSolicitud}"
+                                             style="width:285px;"/>
+
+                                <p:outputLabel value="Observación" for="observacionInterna" />
+                                <p:inputTextarea id="observacionInterna" required="true"
+                                                 value="#{pedidosBacking.selected.observacionInterna}"
+                                                 style="width:285px;" rows="3"/>
+                            </h:panelGrid>
+                        </p:fieldset>
+
+                        <p:spacer/>
+
+                        <p:tabView id="tabDetalle">
+
+                            <p:tab id="tabPuntosEntrega" title="Puntos de Entrega">
+                                <p:dataTable id="puntosentregaDataTable" var="ent"
+                                             value="#{pedidosBacking.modelPuntosEntrega}" rowKey="#{ent.id}"
+                                             emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                             paginator="true" rows="20" 
+                                             selection="#{pedidosBacking.listSelectedPuntosEntrega}">
+
+                                    <f:facet name="header">
+                                        <p:commandButton value="Seleccionar" 
+                                                         process="@this form:tabDetalle:puntosentregaDataTable"
+                                                         actionListener="#{pedidosBacking.puntosEntregaSelectedAction}"
+                                                         disabled="#{empty pedidosBacking.listPuntosEntrega}"
+                                                         update="form:growl form:tabDetalle"/>
+                                    </f:facet>
+
+                                    <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+
+                                    <p:column headerText="Dirección"
+                                              sortBy="#{ent.direcciones.direccionEstandarizada}"
+                                              filterBy="#{ent.direcciones.direccionEstandarizada}"
+                                              filterMatchMode="contains">
+                                        <h:outputText value="#{ent.direcciones.direccionEstandarizada}" />
+                                    </p:column>
+
+                                    <p:column headerText="Ciudad"
+                                              sortBy="#{ent.direcciones.ciudades.nombre}"
+                                              filterBy="#{ent.direcciones.ciudades.nombre}"
+                                              filterMatchMode="contains">
+                                        <h:outputText
+                                            value="#{ent.direcciones.ciudades.nombre}" />
+                                    </p:column>
+
+                                    <f:facet name="footer">
+                                        <p:commandButton value="Seleccionar" 
+                                                         process="@this form:tabDetalle:puntosentregaDataTable"
+                                                         actionListener="#{pedidosBacking.puntosEntregaSelectedAction}"
+                                                         disabled="#{empty pedidosBacking.listPuntosEntrega}"
+                                                         update="form:growl form:tabDetalle"/>
+                                    </f:facet>
+
+                                </p:dataTable>
+                            </p:tab>
+
+                            <p:tab id="tabProductos" title="Productos" 
+                                   disabled="#{empty pedidosBacking.listSelectedPuntosEntrega}">
+
+                                <h:panelGrid columns="2" width="100%">
+                                    <p:outputLabel value="Punto de Entrega" for="idPuntoEntrega"/>
+                                    <p:selectOneMenu id="idPuntoEntrega" required="true"
+                                                     label="Punto de Entrega" style="width:450px;"
+                                                     value="#{pedidosBacking.idPuntoEntrega}"
+                                                     filter="true" filterMatchMode="contains"
+                                                     valueChangeListener="#{pedidosBacking.puntoEntregaHandleChange}">
+                                        <p:ajax update=":form:tabDetalle:pedidosProductosDataTable"/>
+                                        <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                        <f:selectItems
+                                            value="#{pedidosBacking.listItemPuntosEntrega}" />
+                                    </p:selectOneMenu>
+                                    <p:commandButton value="Seleccionar Producto"
+                                                     icon="fa fa-check Fs14 White"
+                                                     oncomplete="handleComplete(xhr, status, args);"
+                                                     process="@this,tabProductos" styleClass="PurpleButton" 
+                                                     update=":form:growl"/>
+                                </h:panelGrid>
+
+                                <p:spacer />
+
+                                <p:dataTable id="pedidosProductosDataTable" var="ent"
+                                             value="#{pedidosBacking.modelPedidosProductos}"
+                                             selection="#{pedidosBacking.listSelectedPedidosProductos}"
+                                             rowKey="#{ent}" emptyMessage="#{msg.msg_empty}" reflow="true"
+                                             paginator="true" rows="10" editable="true" editMode="cell">
+
+                                    <p:ajax event="cellEdit" />
+
+                                    <p:column selectionMode="multiple" style="width:18px" />
+
+                                    <p:column headerText="Código">
+                                        <h:outputText
+                                            value="#{ent.productos.codigo}" />
+                                    </p:column>
+
+                                    <p:column headerText="Nombre">
+                                        <h:outputText
+                                            value="#{ent.productos.nombreCorto}" />
+                                    </p:column>
+
+                                    <p:column headerText="Unidad">
+                                        <h:outputText
+                                            value="#{ent.uoM.codigo}" />
+                                    </p:column>
+
+                                    <p:column headerText="Cantidad">
+                                        <p:cellEditor>
+                                            <f:facet name="output">
+                                                <h:outputText value="#{ent.cantidadSolicitada}" />
+                                            </f:facet>
+                                            <f:facet name="input">
+                                                <pe:inputNumber value="#{ent.cantidadSolicitada}" symbolPosition="s"
+                                                                decimalPlaces="0" style="width:100px" minValue="1"
+                                                                maxValue="9999" />
+                                            </f:facet>
+                                        </p:cellEditor>
+                                    </p:column>
+
+                                    <f:facet name="footer">
+                                        <p:commandButton value="#{msg.oc_remover_productos}"
+                                                         icon="fa fa-times Fs14 White"
+                                                         action="#{pedidosBacking.removeProductoAction}"
+                                                         process="@this,:form:tabDetalle:pedidosProductosDataTable"
+                                                         update=":form:tabDetalle:pedidosProductosDataTable :form:growl"
+                                                         styleClass="PurpleButton">
+                                            <p:confirm header="Confirmación" message="#{msg.msg_sure}"
+                                                       icon="ui-icon-alert" />
+                                        </p:commandButton>
+                                    </f:facet>
+
+                                </p:dataTable>
+
+                            </p:tab>
+
+                        </p:tabView>
+
+                        <p:dialog header="#{msg.menu_productos}"
+                                  widgetVar="dlgProductosVar" modal="true" showEffect="fade"
+                                  hideEffect="fade" resizable="false" width="700">
+
+                            <p:toolbar id="searchProductoToolbar">
+                                <f:facet name="left">
+                                    <p:commandButton id="buscarProductoBtn"
+                                                     value="#{msg.accion_buscar}"
+                                                     icon="fa fa-folder-open Fs14 White"
+                                                     process="@this,productoPanelGrid"
+                                                     update="growl productoDataTable"
+                                                     actionListener="#{pedidosBacking.searchProductoPorClienteAction}"
+                                                     styleClass="PurpleButton" />
+                                </f:facet>
+                            </p:toolbar>
+
+                            <p:defaultCommand target="buscarProductoBtn" />
+
+                            <p:spacer />
+
+                            <p:fieldset legend="Parámetros">
+                                <h:panelGrid id="productoPanelGrid" width="100%" columns="4">
+                                    <p:outputLabel value="#{msg.pro_parametros}"
+                                                   style="font-weight: bold" for="parametroProducto" />
+                                    <p:inputText id="parametroProducto" style="width:200px"
+                                                 label="#{msg.pro_parametros}"
+                                                 value="#{pedidosBacking.parametroProducto}"
+                                                 required="true" >
+                                        <f:validateLength minimum="3"/>
+                                    </p:inputText>
+                                </h:panelGrid>
+                            </p:fieldset>
+
+                            <p:spacer />
+
+                            <p:dataTable id="productoDataTable" var="ent"
+                                         value="#{pedidosBacking.modelProductosTemp}"
+                                         rowKey="#{ent.id}" emptyMessage="#{msg.msg_empty}" reflow="true"
+                                         scrollable="true" scrollHeight="150">
+
+                                <p:column headerText="Codigo del Producto"
+                                          sortBy="#{ent.productos.codigo}"
+                                          filterBy="#{ent.productos.codigo}"
+                                          filterMatchMode="contains">
+                                    <p:commandLink value="#{ent.productos.codigo}"
+                                                   update=":form:growl :form:tabDetalle:pedidosProductosDataTable"
+                                                   process="@this,productoDataTable"
+                                                   action="#{pedidosBacking.addProductoAction}">
+                                        <f:setPropertyActionListener value="#{ent}"
+                                                                     target="#{pedidosBacking.selectedProductosTemp}" />
+                                    </p:commandLink>
+                                </p:column>
+
+                                <p:column headerText="Descripción"
+                                          sortBy="#{ent.productos.nombreLargo}"
+                                          filterBy="#{ent.productos.nombreLargo}"
+                                          filterMatchMode="contains">
+                                    <h:outputText value="#{ent.productos.nombreLargo}" />
+                                </p:column>
+
+                                <p:column headerText="Unidad" sortBy="#{ent.uoM.nombre}"
+                                          filterBy="#{ent.uoM.nombre}" filterMatchMode="contains">
+                                    <h:outputText value="#{ent.uoM.nombre}" />
+                                </p:column>
+                            </p:dataTable>
+
+                        </p:dialog>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Si" type="button"
+                                             styleClass="ui-confirmdialog-yes"
+                                             icon="ui-icon-check fa fa-check Fs14 White" />
+                            <p:commandButton value="No" type="button"
+                                             styleClass="ui-confirmdialog-no"
+                                             icon="ui-icon-close fa fa-close Fs14 White" />
+                        </p:confirmDialog>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function handleComplete(xhr, status, args) {
+                if (!args.validationFailed) {
+                    PF('dlgProductosVar').show();
+                }
+            }
+        </script>
+
+    </ui:define>
+
+</ui:composition>

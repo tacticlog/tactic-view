@@ -1,0 +1,165 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="#{msg.accion_nuevo}"
+                                                 icon="fa fa-check Fs14 White"
+                                                 action="#{pedidosBacking.newAction}"
+                                                 process="@this" styleClass="PurpleButton" />
+                                <p:commandButton value="#{msg.accion_buscar}"
+                                                 icon="fa fa-folder-open Fs14 White"
+                                                 actionListener="#{pedidosBacking.searchAction}"
+                                                 process="@this, consultaPanel" update="consultaDataTable"
+                                                 styleClass="PurpleButton" />
+                                <p:commandButton value="#{msg.accion_actualizar}"
+                                                 icon="fa fa-bolt Fs14 White"
+                                                 action="#{pedidosBacking.updateAction}"
+                                                 process="@this" styleClass="PurpleButton" 
+                                                 disabled="#{pedidosBacking.selected.id eq null}"/>
+                                <p:commandButton value="#{msg.accion_estado}"
+                                                 icon="fa fa-archive Fs14 White"
+                                                 actionListener="#{pedidosBacking.updateEstadoAction}"
+                                                 process="@this" styleClass="PurpleButton" 
+                                                 disabled="#{pedidosBacking.selected.id eq null}"
+                                                 update="dlgEstadosId"
+                                                 oncomplete="PF('dlgEstadosVar').show();"/>
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <h:panelGrid id="consultaPanel" width="100%">
+
+                            <p:fieldset legend="Parámetros">
+                                <h:panelGrid columns="4" width="100%">
+                                    <p:outputLabel value="Fecha Inicial" for="fechaInicial" />
+                                    <p:calendar id="fechaInicial"
+                                                value="#{pedidosBacking.fechaPedidoInicial}" 
+                                                label="Fecha Inicial" readonlyInput="false"
+                                                pattern="dd/MM/yyyy" showOn="button" navigator="true"
+                                                locale="es" maxdate="#{pedidosBacking.today}"/>
+                                    <h:outputLabel value="Fecha Final" for="fechaFinal" />
+                                    <p:calendar id="fechaFinal"
+                                                value="#{pedidosBacking.fechaPedidoFinal}" 
+                                                label="Fecha Final" readonlyInput="false" pattern="dd/MM/yyyy"
+                                                showOn="button" navigator="true" locale="es" 
+                                                maxdate="#{pedidosBacking.today}"/>
+                                    <p:outputLabel value="Estado" for="estadosOrdenCompraId" />
+                                    <p:selectOneMenu id="estadosOrdenCompraId" 
+                                                     label="Estado" style="width:250px;"
+                                                     value="#{pedidosBacking.idEstadosPedidos}"
+                                                     filter="true" filterMatchMode="contains">
+                                        <f:selectItems
+                                            value="#{pedidosBacking.listEstadosPedidos}" />
+                                    </p:selectOneMenu>
+                                    <p:outputLabel value="Número de Solicitud" for="numeroDocumentoSolicitud" />
+                                    <p:inputText id="numeroDocumentoSolicitud" 
+                                                 value="#{pedidosBacking.numeroDocumentoSolicitud}"
+                                                 style="width:285px;"/>
+
+                                    <p:outputLabel value="Cliente" for="clientes" />
+                                    <p:selectOneMenu id="clientes" 
+                                                     label="Cliente" style="width:250px;"
+                                                     value="#{pedidosBacking.idClientes}"
+                                                     filter="true" filterMatchMode="contains">
+                                        <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                        <f:selectItems
+                                            value="#{pedidosBacking.listClientesActivos}" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </p:fieldset>
+
+                            <p:spacer />
+
+                            <p:dataTable id="consultaDataTable" var="ent"
+                                         value="#{pedidosBacking.model}" rowKey="#{ent.id}"
+                                         emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                         selection="#{pedidosBacking.selected}"
+                                         selectionMode="single"
+                                         paginator="true" rows="20">
+
+                                <p:ajax event="rowSelect" update=":form:toolbarTop" />
+                                <p:ajax event="rowUnselect" update=":form:toolbarTop" />
+
+                                <p:column headerText="Número de Solicitud"
+                                          sortBy="#{ent.numeroDocumento}" filterBy="#{ent.numeroDocumento}"
+                                          filterMatchMode="contains">
+                                    <h:outputText value="#{ent.numeroDocumento}" />
+                                </p:column>
+                                <p:column headerText="#{msg.oc_cliente_final}"
+                                          sortBy="#{ent.clientes.terceros.razonSocial}"
+                                          filterBy="#{ent.clientes.terceros.razonSocial}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.clientes.terceros.razonSocial}" />
+                                </p:column>
+                                <p:column headerText="#{msg.oc_fechaSolicitud}"
+                                          sortBy="#{ent.fechaSolicitudPedido}">
+                                    <h:outputText value="#{ent.fechaSolicitudPedido}" />
+                                </p:column>
+                                <p:column headerText="#{msg.oc_estado}"
+                                          sortBy="#{ent.estadosPedidos.nombre}"
+                                          filterBy="#{ent.estadosPedidos.nombre}"
+                                          filterMatchMode="contains">
+                                    <h:outputText value="#{ent.estadosPedidos.nombre}" />
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+
+                        <p:dialog header="Cambiar Estado" id="dlgEstadosId"
+                                  widgetVar="dlgEstadosVar" modal="true" showEffect="fade"
+                                  hideEffect="fade" resizable="false" width="500">
+
+                            <h:panelGrid columns="2" width="100%">
+                                <p:outputLabel value="Nuevo Estado" for="estadoDisponibles"/>
+                                <p:selectOneMenu id="estadoDisponibles" required="true"
+                                                 label="Nuevo Estado" style="width:250px;"
+                                                 value="#{pedidosBacking.idEstadosDisponibles}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listEstadosDisponibles}" />
+                                </p:selectOneMenu>
+                            </h:panelGrid>
+
+                            <p:spacer/>
+
+                            <h:panelGrid columns="1" width="100%">
+                                <p:commandButton value="#{msg.accion_actualizar}"
+                                                 actionListener="#{pedidosBacking.saveEstadoAction}"
+                                                 icon="fa fa-bolt Fs14 White"
+                                                 oncomplete="handleComplete(xhr, status, args);"
+                                                 update=":form:consultaDataTable"/>
+                            </h:panelGrid>
+
+                        </p:dialog>
+
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        
+        <script type="text/javascript">
+            function handleComplete(xhr, status, args) {
+                if (!args.validationFailed) {
+                    PF('dlgEstadosVar').hide();
+                }
+            }
+        </script>
+
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport"
+                  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>Tactic Logistic SAS</title>
+        <ui:insert name="head" />
+    </h:head>
+
+    <h:body styleClass="loginbodyblue">
+        <h:form>
+            <p:growl id="growl" showDetail="true" />
+            <div class="Wid90 DispBlock MarAuto MarTopPerc5 TexAlCenter">
+                <div class="Wid33 MarAuto WidAutoOnMobile">
+                    <h:graphicImage name="images/logo.jpg" library="rio-layout"
+                                    style="width:40%; max-width:200px;" />
+                    <div class="EmptyBox30"></div>
+                    <div class="Card ShadowEffect">
+                        <div class="EmptyBox20"></div>
+                        <div class="Wid100 OvHidden BigTopic Fs30">
+                            <i class="icon-users Fs40"></i> Iniciar Sesión
+                        </div>
+                        <div class="EmptyBox20"></div>
+                        <div class="Wid100">
+                            <p:inputText placeholder="#{msg.usr_usuario}"
+                                         styleClass="Wid80 TexAlCenter Fs18"
+                                         value="#{loginBacking.username}" required="true"
+                                         label="#{msg.usr_usuario}" />
+                        </div>
+                        <div class="EmptyBox10"></div>
+                        <div class="Wid100">
+                            <p:inputText type="password" placeholder="#{msg.usr_clave}"
+                                         styleClass="Wid80 TexAlCenter Fs18"
+                                         value="#{loginBacking.password}" required="true"
+                                         label="#{msg.usr_clave}" />
+                        </div>
+                        <div class="EmptyBox30"></div>
+                        <p:selectBooleanCheckbox value="accept" itemLabel="Recordarme" />
+                        <div class="EmptyBox30"></div>
+                        <div class="Wid100">
+                            <p:commandButton value="Conectarse" icon="fa fa-sign-in"
+                                             styleClass="Wid60 Fs18 White RaisedButton"
+                                             action="#{loginBacking.loginAction}" update="growl" />
+                        </div>
+                        <div class="EmptyBox5"></div>
+                        <div class="Wid100">
+                            <p:button value="¿Olvidaste tu clave?" icon="fa fa-lock"
+                                      styleClass="RedButton Wid60 Fs18 White RaisedButton" />
+                        </div>
+                        <div class="EmptyBox20"></div>
+                        <div class="Separator"></div>
+                        <div class="EmptyBox10"></div>
+                        <div class="Wid100">
+                            <p:button value="¿Necesitas ayuda?" icon="fa fa-key"
+                                      styleClass="GreenButton Wid60 Fs18 White RaisedButton" />
+                        </div>
+                        <div class="EmptyBox20"></div>
+                    </div>
+                    <div
+                        class="Wid100 TexAlCenter MarTop20 Fs14 FontRobotoRegular WhiteBlue">
+                        <i class="fa fa-copyright"></i> PrimeFaces RIO Theme And Layout <br />
+                        All rights reserved.
+                    </div>
+                </div>
+            </div>
+
+            <h:outputStylesheet name="css/core-layout.css" library="rio-layout" />
+            <h:outputStylesheet name="css/animate.css" library="rio-layout" />
+            <h:outputStylesheet name="css/rio-font.css" library="rio-layout" />
+            <h:outputStylesheet name="css/ripple-effect.css" library="rio-layout" />
+            <h:outputStylesheet name="css/font-awesome.css" library="rio-layout" />
+            <h:outputStylesheet name="css/rio-layout.css" library="rio-layout" />
+        </h:form>
+    </h:body>
+
+</html>

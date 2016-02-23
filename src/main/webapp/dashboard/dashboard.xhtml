@@ -1,0 +1,388 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="head">
+		<script type="text/javascript">
+            function skinChart() {
+                this.cfg.shadow = false;
+                this.cfg.title='';
+                this.cfg.seriesColors = ['#FF4081', '#FBB040', '#1C75BC'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#ffffff',
+                    gridLineColor: '#E8E8E8',
+                    shadow: false,
+                };
+                this.cfg.axesDefaults = {
+                    rendererOptions: {
+                        textColor: '#778D9B'
+                    }
+                };
+                this.cfg.seriesDefaults = {
+                    shadow: false,
+                    markerOptions: {
+                        shadow: false
+                    }
+                }
+            }
+
+            function skinPie() {
+                this.cfg.seriesColors = ['#dae8ef', '#27aae1', '#33ccff', '#9fadb5'];
+                this.cfg.grid = {
+                    background: '#ffffff',
+                    borderColor: '#eaeaea',
+                    gridLineColor: '#e5ebf0',
+                    shadow: false,
+                    borderWidth: 0
+                };
+                this.cfg.seriesDefaults.shadow = false;
+            }
+        </script>
+		<style type="text/css">
+.jqplot-target, .jqplot-axis {
+	color: #778D9B;
+}
+</style>
+	</ui:define>
+
+	<ui:define name="content">
+		<h:form id="form">
+			<!-- section -->
+			<div class="Container100">
+				<div class="Container70 Responsive100">
+					<div class="Container100">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile"
+								style="height: 125px;">
+
+								<p:panel header="PERIODO" style="height:100%; min-height:100px;"
+									styleClass="HeiAutoOnMobile">
+									<h:panelGrid width="100%" columns="5">
+										<h:outputLabel value="Año" />
+										<p:selectOneMenu value="#{dashboardBacking.annio}">
+											<f:selectItem itemLabel="2015" itemValue="2015" />
+											<f:selectItem itemLabel="2014" itemValue="2014" />
+											<f:selectItem itemLabel="2013" itemValue="2014" />
+											<f:selectItem itemLabel="2012" itemValue="2012" />
+										</p:selectOneMenu>
+										<h:outputLabel value="Mes" />
+										<p:selectOneMenu value="#{dashboardBacking.mes}" filter="true">
+											<f:selectItem itemLabel="Enero" itemValue="1" />
+											<f:selectItem itemLabel="Febrero" itemValue="2" />
+											<f:selectItem itemLabel="Marzo" itemValue="3" />
+											<f:selectItem itemLabel="Abril" itemValue="4" />
+											<f:selectItem itemLabel="Mayo" itemValue="5" />
+											<f:selectItem itemLabel="Junio" itemValue="6" />
+											<f:selectItem itemLabel="Julio" itemValue="7" />
+											<f:selectItem itemLabel="Agosto" itemValue="8" />
+											<f:selectItem itemLabel="Septiembre" itemValue="9" />
+											<f:selectItem itemLabel="Octubre" itemValue="10" />
+											<f:selectItem itemLabel="Noviembre" itemValue="11" />
+											<f:selectItem itemLabel="Diciembre" itemValue="12" />
+										</p:selectOneMenu>
+
+										<p:commandButton value="Actualizar" update="form"
+											action="#{dashboardBacking.refreshAction}"
+											styleClass="PurpleButton" />
+									</h:panelGrid>
+								</p:panel>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="Container100">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile"
+								style="height: 392px;">
+
+								<p:panel header="OTIF" style="height:100%; min-height:348px;"
+									styleClass="HeiAutoOnMobile">
+									<p:chart type="bar" model="#{dashboardBacking.barModel}"
+										style="height:320px;" responsive="true" />
+								</p:panel>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="Container100">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile"
+								style="min-height: 816px;">
+								<h2 class="CardTopic">
+									<i class="icon-google132 Fs20 Fleft MarRight10 OvHidden"></i>
+									KPI Ambev
+
+									<p:commandButton id="salesMenu" type="button"
+										icon="fa fa-ellipsis-v Gray Fs20"
+										styleClass="Fright GrayButton"
+										style="margin-top:-30px !important;" />
+									<p:menu overlay="true" trigger="salesMenu" my="left top"
+										at="left bottom">
+										<p:menuitem value=" Get Full Report"
+											icon="ui-icon-disk fa fa-file-pdf-o" />
+										<p:menuitem value=" Send With Email"
+											icon="ui-icon-disk fa fa-send" />
+										<p:menuitem value=" Print Report"
+											icon="ui-icon-disk fa fa-print" />
+									</p:menu>
+
+								</h2>
+								<div class="Separator"></div>
+
+								<p:dataTable id="singleDT" var="car"
+									value="#{dashboardBacking.resultadosModel}"
+									selectionMode="single"
+									selection="#{dashboardBacking.resultado}" rowKey="#{car.id}"
+									rows="12" paginator="true"
+									paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+									rowsPerPageTemplate="12,15,22"
+									emptyMessage="No existen resultados" reflow="true">
+									<f:facet name="header">
+										<h:outputText value="KPI Ambev" />
+									</f:facet>
+
+									<p:column headerText="Año" sortBy="#{car.annio}"
+										footerText="Año">
+										<h:outputText value="#{car.annio}" />
+									</p:column>
+									<p:column headerText="Mes" sortBy="#{car.mes}" footerText="Mes">
+										<h:outputText value="#{car.mes}" />
+									</p:column>
+									<p:column headerText="Kpi" sortBy="#{car.kpi}" footerText="Kpi">
+										<h:outputText value="#{car.kpi}" />
+									</p:column>
+									<p:column headerText="Unidad" sortBy="#{car.unidad}"
+										footerText="Unidad">
+										<h:outputText value="#{car.unidad}" />
+									</p:column>
+									<p:column headerText="Valor Real" sortBy="#{car.real}"
+										footerText="Valor Real">
+										<h:outputText value="#{car.real}" style="float: right;">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputText>
+									</p:column>
+									<p:column headerText="Valor Planeado" sortBy="#{car.planeado}"
+										footerText="Valor Planeado">
+										<h:outputText value="#{car.planeado}" style="float: right;">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputText>
+									</p:column>
+								</p:dataTable>
+
+								<p:dialog header="Car Info" widgetVar="carDialog" modal="true"
+									showEffect="fade" hideEffect="fade" resizable="false">
+									<p:outputPanel id="carDetail" style="text-align:center;">
+										<h:panelGrid columns="2"
+											rendered="#{not empty dtSelectionView.selectedCar}">
+											<f:facet name="header">
+												<p:graphicImage
+													name="demo/images/car/#{dtSelectionView.selectedCar.brand}-big.gif" />
+											</f:facet>
+
+											<h:outputText value="Id:" style="font-weight: bold" />
+											<h:outputText value="#{dtSelectionView.selectedCar.id}" />
+
+											<h:outputText value="Year" style="font-weight: bold" />
+											<h:outputText value="#{dtSelectionView.selectedCar.year}" />
+
+											<h:outputText value="Color:" style="font-weight: bold" />
+											<h:outputText value="#{dtSelectionView.selectedCar.color}"
+												style="color:#{dtSelectionView.selectedCar.color}" />
+
+											<h:outputText value="Price" style="font-weight: bold" />
+											<h:outputText value="\$#{dtSelectionView.selectedCar.price}" />
+										</h:panelGrid>
+									</p:outputPanel>
+								</p:dialog>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="Container30 Responsive100">
+					<div class="Container100 Responsive50">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile OvHidden">
+								<div class="Container100"
+									style="margin: 0px 10px 10px -10px; padding: 0px 10px;">
+									<div class="SoftOrangeBack DispInlBlock Fleft"
+										style="margin: -10px 10px -10px -10px; padding: 20px 10px;">
+										<i class="icon-planet29 Orange Fs100"></i>
+									</div>
+									<p></p>
+									<span class="Gray FontRobotoLight Fs20">#{dashboardBacking.kpiWholesalerRejections.kpi}
+										(#{dashboardBacking.kpiWholesalerRejections.unidad})</span><br /> <span
+										class="Orange Fs20 FontRobotoBold"><h:outputLabel
+											value="#{dashboardBacking.kpiWholesalerRejections.real}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span>
+								</div>
+								<div class="CardFooter">
+									<span class="Green Fleft Fs15"> Planeado: <h:outputLabel
+											value="#{dashboardBacking.kpiWholesalerRejections.planeado}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel>
+									</span> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-add182"></i></a> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-receipt9"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="Container100 Responsive50">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile OvHidden">
+								<div class="Container100"
+									style="margin: 0px 10px 10px -10px; padding: 0px 10px;">
+									<div class="SoftGreenBack DispInlBlock Fleft"
+										style="margin: -10px 10px -10px -10px; padding: 20px 10px;">
+										<i class="icon-screen44 Green Fs100"></i>
+									</div>
+									<p></p>
+									<span class="Gray FontRobotoLight Fs17">#{dashboardBacking.kpiCapacityOccupation.kpi}
+										(#{dashboardBacking.kpiCapacityOccupation.unidad})</span><br /> <span
+										class="Green Fs20 FontRobotoBold"> <h:outputLabel
+											value="#{dashboardBacking.kpiCapacityOccupation.real}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel>
+									</span>
+								</div>
+								<div class="CardFooter">
+									<span class="Red Fleft Fs15">Planeado: <h:outputLabel
+											value="#{dashboardBacking.kpiCapacityOccupation.planeado}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-add182"></i></a> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-receipt9"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="Container100 Responsive50">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile OvHidden">
+								<div class="Container100"
+									style="margin: 0px 10px 10px -10px; padding: 0px 10px;">
+									<div class="SoftRedBack DispInlBlock Fleft"
+										style="margin: -10px 10px -10px -10px; padding: 20px 10px;">
+										<i class="icon-briefcase50 Red Fs100"></i>
+									</div>
+									<p></p>
+									<span class="Gray FontRobotoLight Fs17">#{dashboardBacking.kpiStockDaysTACTIC.kpi}
+										(#{dashboardBacking.kpiStockDaysTACTIC.unidad})</span><br /> <span
+										class="Red Fs20 FontRobotoBold"><h:outputLabel
+											value="#{dashboardBacking.kpiStockDaysTACTIC.real}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span>
+								</div>
+								<div class="CardFooter">
+									<span class="Red Fleft Fs15">Planeado: <h:outputLabel
+											value="#{dashboardBacking.kpiStockDaysTACTIC.planeado}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-add182"></i></a> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-receipt9"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="Container100 Responsive50">
+						<div class="ContainerIndent">
+							<div class="Card ShadowEffect HeiAutoOnMobile OvHidden">
+								<div class="Container100"
+									style="margin: 0px 10px 10px -10px; padding: 0px 10px;">
+									<div class="SoftPurpleBack DispInlBlock Fleft"
+										style="margin: -10px 10px -10px -10px; padding: 20px 10px;">
+										<i class="icon-download166 Purple Fs100"></i>
+									</div>
+									<p></p>
+									<span class="Gray FontRobotoLight Fs17">#{dashboardBacking.kpiOTD.kpi}
+										(#{dashboardBacking.kpiOTD.unidad})</span><br /> <span
+										class="Purple Fs20 FontRobotoBold"><h:outputLabel
+											value="#{dashboardBacking.kpiOTD.real}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span>
+								</div>
+								<div class="CardFooter">
+									<span class="Green Fleft Fs15">Planeado: <h:outputLabel
+											value="#{dashboardBacking.kpiOTD.planeado}">
+											<f:convertNumber maxFractionDigits="2" minFractionDigits="2" />
+										</h:outputLabel></span> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-add182"></i></a> <a href="#"
+										class="CardFooterBtn Gray BorderLeft Fright ripplelink"><i
+										class="icon-receipt9"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="Container100 Responsive100">
+						<div class="Container100 Responsive100">
+							<div class="ContainerIndent">
+								<div class="Card ShadowEffect HeiAutoOnMobile">
+									<h2 class="CardTopic">
+										<i class="icon-chat76 Fs20 Fleft MarRight10"></i> MESSAGE TO
+										USERS
+
+										<p:commandButton id="messageToUsersMenu" type="button"
+											icon="fa fa-ellipsis-v Gray Fs20"
+											styleClass="Fright GrayButton"
+											style="margin-top:-30px !important;" />
+										<p:menu overlay="true" trigger="messageToUsersMenu"
+											my="left top" at="left bottom">
+											<p:menuitem value="New" icon="ui-icon-disk fa fa-edit" />
+											<p:menuitem value="Clear" icon="ui-icon-disk fa fa-close" />
+											<p:menuitem value="Send" icon="ui-icon-disk fa fa-send" />
+										</p:menu>
+
+									</h2>
+									<div class="Separator"></div>
+									<div class="Container100">
+										<div class="ContainerIndent">
+											<p:selectOneMenu id="console"
+												value="#{selectOneMenuView.console}"
+												style="min-width:100px;" styleClass="Wid70">
+												<f:selectItem itemLabel="Select User" itemValue="" />
+												<f:selectItem itemLabel="Walter Perkins"
+													itemValue="Xbox One" />
+												<f:selectItem itemLabel="Annie Silver" itemValue="PS4" />
+												<f:selectItem itemLabel="Jack Sparrow" itemValue="Wii U" />
+												<f:selectItem itemLabel="Paul Gasoul" itemValue="Wii U" />
+											</p:selectOneMenu>
+											<div class="EmptyBox10"></div>
+											<p:inputText styleClass="Wid90" placeholder="Subject"></p:inputText>
+											<div class="EmptyBox10"></div>
+											<p:inputTextarea styleClass="Wid90" placeholder="Message"></p:inputTextarea>
+											<div class="EmptyBox10"></div>
+											<div class="Container100">
+												<p:inputSwitch onLabel="on" offLabel="off"
+													styleClass="Fleft" />
+												<span class="DispInlBlock Fleft"
+													style="margin: 5px 0px 0px 10px;">Send To All Users</span>
+											</div>
+											<div class="EmptyBox20"></div>
+											<p:button value="SEND" styleClass="Fright GreenButton" />
+											<p:button value="CLEAR" styleClass="Fright RedButton" />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+
+</ui:composition>

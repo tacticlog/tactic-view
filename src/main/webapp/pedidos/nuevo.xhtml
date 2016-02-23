@@ -1,0 +1,277 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="#{msg.accion_guardar}"
+                                                 icon="fa fa-check Fs14 White"
+                                                 actionListener="#{pedidosBacking.saveAction}"
+                                                 process="@this flsBasicos" styleClass="PurpleButton"
+                                                 update="growl"/>
+                                <p:commandButton value="#{msg.accion_regresar}"
+                                                 icon="fa fa-reply Fs14 White"
+                                                 action="#{pedidosBacking.returnAction}"
+                                                 process="@this" styleClass="PurpleButton" />
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <p:fieldset id="flsBasicos" legend="Datos Básicos">
+                            <h:panelGrid columns="4" width="100%"
+                                         columnClasses="width25per,width25per,width25per,width25per">
+
+                                <p:outputLabel value="Cliente" for="clientes" />
+                                <p:selectOneMenu id="clientes" required="true"
+                                                 label="Cliente" style="width:250px;"
+                                                 value="#{pedidosBacking.idClientes}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <p:ajax update="destinatarios flsDetalle"/>
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listClientesActivos}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Destinatario" for="destinatarios" />
+                                <p:selectOneMenu id="destinatarios" required="true"
+                                                 label="Destinatario" style="width:250px;"
+                                                 value="#{pedidosBacking.selected.destinatarios.id}"
+                                                 filter="true" filterMatchMode="contains"
+                                                 valueChangeListener="#{pedidosBacking.destinatariosHandleChange}">
+                                    <p:ajax update="flsDetalle telefonosContacto emailsContacto"/>
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.getListDestinatarioPorCliente(pedidosBacking.idClientes)}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Tipo de Pedido" for="tiposPedido" />
+                                <p:selectOneMenu id="tiposPedido" required="true"
+                                                 label="Tipo de Pedido" style="width:250px;"
+                                                 value="#{pedidosBacking.selected.tiposPedido.id}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listTiposPedido}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Número de Documento" for="numeroDocumentoSolicitud" />
+                                <p:inputText id="numeroDocumentoSolicitud" required="true"
+                                             value="#{pedidosBacking.selected.numeroDocumento}"
+                                             style="width:285px;" label="Número de Documento"/>
+
+                                <p:outputLabel value="Fecha de Solicitud" for="fechaSolicitudPedido" />
+                                <p:inputText id="fechaSolicitudPedido" required="true"
+                                             value="#{pedidosBacking.selected.fechaSolicitudPedido}"
+                                             style="width:285px;">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                </p:inputText>
+
+                                <p:outputLabel value="Fecha de Entrega" for="fechaEntrega" />
+                                <p:inputText id="fechaEntrega" required="true"
+                                             value="#{pedidosBacking.selected.fechaEntrega}"
+                                             style="width:285px;">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                </p:inputText>
+
+                                <p:outputLabel value="Teléfono de Contacto" for="telefonosContacto" />
+                                <p:inputText id="telefonosContacto" required="true"
+                                             value="#{pedidosBacking.telefonosContacto}"
+                                             style="width:285px;" label="Teléfono de Contacto"/>
+
+                                <p:outputLabel value="Email de Contacto" for="emailsContacto" />
+                                <p:inputText id="emailsContacto" required="true"
+                                             value="#{pedidosBacking.emailsContacto}"
+                                             style="width:285px;" label="Email de Contacto"/>
+                            </h:panelGrid>
+
+                            <h:panelGrid columns="2" width="100%"
+                                         columnClasses="width25per,width75per">
+                                <p:outputLabel value="Notas" for="observacionSolicitud" />
+                                <p:inputTextarea id="observacionSolicitud" required="true"
+                                                 value="#{pedidosBacking.selected.observacionSolicitud}"
+                                                 style="width:760px;" rows="2" label="Notas"/>
+                            </h:panelGrid>
+                        </p:fieldset>
+
+                        <p:spacer/>
+
+                        <p:fieldset id="flsDetalle" legend="Detalle">
+                            <h:panelGrid columns="4" width="100%">
+                                <p:outputLabel value="Ciudad" for="idCiudades" />
+                                <p:selectOneMenu id="idCiudades" required="true"
+                                                 label="Ciudad" style="width:250px;"
+                                                 value="#{pedidosBacking.idCiudades}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listCiudades}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Punto de Entrega" for="idPuntoEntrega" />
+                                <p:selectOneMenu id="idPuntoEntrega" required="true"
+                                                 label="Ciudad" style="width:250px;"
+                                                 value="#{pedidosBacking.idPuntoEntrega}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.getListPuntosEntregaPorDestinatario(pedidosBacking.selected.destinatarios.id)}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Producto" for="idProductos" />
+                                <p:selectOneMenu id="idProductos" required="true"
+                                                 label="Producto" style="width:250px;"
+                                                 value="#{pedidosBacking.idProductos}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <p:ajax update="idUoM"/>
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listProductosPorCliente}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Cantidad" for="cantidadSolicitada" />
+                                <p:inputText id="cantidadSolicitada" required="true"
+                                             value="#{pedidosBacking.cantidadSolicitada}"
+                                             style="width:285px;" label="Cantidad">
+                                    <f:convertNumber integerOnly="true"/>
+                                </p:inputText>
+
+                                <p:outputLabel value="UoM" for="idUoM" />
+                                <p:selectOneMenu id="idUoM" required="true"
+                                                 label="UoM" style="width:250px;"
+                                                 value="#{pedidosBacking.idUoM}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.getListUoMPorProductos(pedidosBacking.idProductos)}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Bodega Sugerida" for="idCentrosDistribucion" />
+                                <p:selectOneMenu id="idCentrosDistribucion" required="true"
+                                                 label="Bodega Sugerida" style="width:250px;"
+                                                 value="#{pedidosBacking.idCentrosDistribucion}"
+                                                 filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="-- Seleccione --" noSelectionOption="true"/>
+                                    <f:selectItems
+                                        value="#{pedidosBacking.listCentrosDistribucion}" />
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Lote Sugerido" for="loteSugerido" />
+                                <p:inputText id="loteSugerido" required="true"
+                                             value="#{pedidosBacking.loteSugerido}"
+                                             style="width:285px;" label="Lote Sugerido"/>
+
+                                <p:outputLabel value="Notas" for="observacionPedido" />
+                                <p:inputTextarea id="observacionPedido" required="true"
+                                                 style="width:285px;" rows="2" label="Notas"/>
+
+                                <p:commandButton id="addProducto" update="growl"
+                                                 value="Agregar" actionListener="#{pedidosBacking.addProductoAction}"
+                                                 process="@this flsDetalle" styleClass="PurpleButton"/>
+
+                                <p:hotkey bind="addProducto"/>
+
+                            </h:panelGrid>
+
+                            <p:dataTable id="puntosentregaDataTable" var="ent"
+                                         value="#{pedidosBacking.modelPedidosProductos}" rowKey="#{ent.id}"
+                                         emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                         paginator="true" rows="20" >
+
+                                <p:column headerText="Ciudad"
+
+                                          filterBy="#{ent.pedidosDestinos.direcciones.direccionEstandarizada}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.pedidosDestinos.direcciones.direccionEstandarizada}" />
+                                </p:column>
+
+                                <p:column headerText="Punto de Entrega"
+
+                                          filterBy="#{ent.pedidosDestinos.direcciones.direccionEstandarizada}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.pedidosDestinos.direcciones.direccionEstandarizada}" />
+                                </p:column>
+
+                                <p:column headerText="Producto"
+
+                                          filterBy="#{ent.productos.nombreCorto}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.productos.nombreCorto}" />
+                                </p:column>
+
+                                <p:column headerText="Cantidad"
+
+                                          filterBy="#{ent.cantidadSolicitada}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.cantidadSolicitada}" />
+                                </p:column>
+
+                                <p:column headerText="UoM"
+
+                                          filterBy="#{ent.uoM.nombre}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.uoM.nombre}" />
+                                </p:column>
+
+                                <p:column headerText="Bodega"
+
+                                          filterBy="#{ent.codigoCentroDistribucionSugerido}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.codigoCentroDistribucionSugerido}" />
+                                </p:column>
+
+                                <p:column headerText="Lote"
+
+                                          filterBy="#{ent.numeroLoteSugerido}"
+                                          filterMatchMode="contains">
+                                    <h:outputText
+                                        value="#{ent.numeroLoteSugerido}" />
+                                </p:column>
+
+                            </p:dataTable>
+
+                        </p:fieldset>
+
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                            <p:commandButton value="Si" type="button"
+                                             styleClass="ui-confirmdialog-yes"
+                                             icon="ui-icon-check fa fa-check Fs14 White" />
+                            <p:commandButton value="No" type="button"
+                                             styleClass="ui-confirmdialog-no"
+                                             icon="ui-icon-close fa fa-close Fs14 White" />
+                        </p:confirmDialog>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function handleComplete(xhr, status, args) {
+                if (!args.validationFailed) {
+                    PF('dlgProductosVar').show();
+                }
+            }
+        </script>
+
+    </ui:define>
+
+</ui:composition>

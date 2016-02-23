@@ -1,0 +1,161 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" template="/WEB-INF/template.xhtml">
+
+	<ui:define name="content">
+		<div class="Container100">
+			<div class="ContainerIndent">
+				<div class="Card ShadowEffect TexAlCenter">
+					<br />
+					<h2>Inventario</h2>
+
+					<h:form id="form">
+						<p:growl id="growl" showDetail="true" />
+
+						<div class="Container100">
+							<div class="ContainerIndent">
+								<div class="Card ShadowEffect HeiAutoOnMobile"
+									style="height: 150px;">
+
+									<p:panel header="PERIODO"
+										style="height:100%; min-height:150px;"
+										styleClass="HeiAutoOnMobile">
+										<h:panelGrid width="100%" columns="4">
+											<h:outputLabel value="Año" />
+											<p:selectOneMenu value="#{inventarioBacking.annio}">
+												<f:selectItem itemLabel="2015" itemValue="2015" />
+												<f:selectItem itemLabel="2014" itemValue="2014" />
+												<f:selectItem itemLabel="2013" itemValue="2014" />
+												<f:selectItem itemLabel="2012" itemValue="2012" />
+											</p:selectOneMenu>
+											<h:outputLabel value="Mes" />
+											<p:selectOneMenu value="#{inventarioBacking.mes}"
+												filter="true">
+												<f:selectItem itemLabel="Enero" itemValue="1" />
+												<f:selectItem itemLabel="Febrero" itemValue="2" />
+												<f:selectItem itemLabel="Marzo" itemValue="3" />
+												<f:selectItem itemLabel="Abril" itemValue="4" />
+												<f:selectItem itemLabel="Mayo" itemValue="5" />
+												<f:selectItem itemLabel="Junio" itemValue="6" />
+												<f:selectItem itemLabel="Julio" itemValue="7" />
+												<f:selectItem itemLabel="Agosto" itemValue="8" />
+												<f:selectItem itemLabel="Septiembre" itemValue="9" />
+												<f:selectItem itemLabel="Octubre" itemValue="10" />
+												<f:selectItem itemLabel="Noviembre" itemValue="11" />
+												<f:selectItem itemLabel="Diciembre" itemValue="12" />
+											</p:selectOneMenu>
+
+											<p:commandButton value="Actualizar" update="form"
+												action="#{inventarioBacking.refreshAction}"
+												styleClass="PurpleButton" />
+										</h:panelGrid>
+									</p:panel>
+
+								</div>
+							</div>
+						</div>
+
+						<div class="Container100">
+							<div class="ContainerIndent">
+								<div class="Card ShadowEffect HeiAutoOnMobile"
+									style="min-height: 816px;">
+									<h2 class="CardTopic">
+										<i class="icon-google132 Fs20 Fleft MarRight10 OvHidden"></i>
+										Resultados
+									</h2>
+									<div class="Separator"></div>
+
+									<p:dataTable id="singleDT" var="car"
+										value="#{inventarioBacking.inventarioModel}"
+										selectionMode="single"
+										selection="#{inventarioBacking.inventario}" rowKey="#{car.id}"
+										rows="6" paginator="true"
+										paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+										rowsPerPageTemplate="6,12,24,48,60,72"
+										emptyMessage="No existen resultados" reflow="true">
+
+										<p:column headerText="Ciudad"
+											filterBy="#{car.ciudades.nombre}" filterMatchMode="contains">
+											<h:outputText value="#{car.ciudades.nombre}" />
+										</p:column>
+
+										<p:column headerText="Building Id"
+											filterBy="#{car.buildingId}" filterMatchMode="contains">
+											<h:outputText value="#{car.buildingId}" />
+										</p:column>
+
+										<p:column headerText="Área" filterBy="#{car.area}"
+											filterMatchMode="contains">
+											<h:outputText value="#{car.area}" />
+										</p:column>
+
+										<p:column headerText="Ubicación"
+											filterBy="#{car.storageLocation}" filterMatchMode="contains">
+											<h:outputText value="#{car.storageLocation}" />
+										</p:column>
+
+										<p:column headerText="Descripción"
+											filterBy="#{car.description}" filterMatchMode="contains">
+											<h:outputText value="#{car.itemNumber} - #{car.description}" />
+										</p:column>
+
+										<p:column headerText="Estado"
+											filterBy="#{car.inventoryStatus eq 'Available'?'Disponible':'No Disponible'}"
+											filterMatchMode="contains" footerText="Totales">
+											<h:outputText
+												value="#{car.inventoryStatus eq 'Available'?'Disponible':'No Disponible'}" />
+										</p:column>
+
+										<p:column headerText="Unidad" footerText="#{car.unitType}">
+											<h:outputText value="#{car.unitType}" />
+										</p:column>
+
+										<p:column headerText="Cantidad"
+											footerText="#{inventarioBacking.unitQuantitySum}">
+											<h:outputText value="#{car.unitQuantity}" />
+										</p:column>
+
+										<p:column headerText="Ocupación Máxima"
+											footerText="#{inventarioBacking.usedCapacitySum}">
+											<h:outputText value="#{car.maximumCapacity}" />
+										</p:column>
+
+										<p:column headerText="Ocupación Usada"
+											footerText="#{inventarioBacking.maximumCapacitySum}">
+											<h:outputText value="#{car.usedCapacity}" />
+										</p:column>
+
+									</p:dataTable>
+								</div>
+							</div>
+						</div>
+
+						<div class="Container100">
+							<div class="ContainerIndent">
+								<div class="Card ShadowEffect HeiAutoOnMobile"
+									style="height: 410px;">
+
+									<p:gmap id="gmap"
+										center="4.600000000000000,-74.083333300000000" zoom="5"
+										type="HYBRID" model="#{inventarioBacking.simpleModel}"
+										style="width:100%;height:400px">
+										<p:ajax event="overlaySelect"
+											listener="#{inventarioBacking.onMarkerSelect}" update="growl" />
+									</p:gmap>
+
+								</div>
+							</div>
+						</div>
+
+					</h:form>
+
+					<br /> <br />
+				</div>
+			</div>
+		</div>
+
+	</ui:define>
+
+</ui:composition>

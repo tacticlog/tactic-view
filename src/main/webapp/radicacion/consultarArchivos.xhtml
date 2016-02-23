@@ -1,0 +1,168 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="Container100">
+            <div class="ContainerIndent">
+                <div class="Card ShadowEffect">
+                    <h:form id="form">
+
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:toolbar id="toolbarTop">
+                            <f:facet name="left">
+                                <p:commandButton value="#{msg.accion_buscar}"
+                                                 icon="fa fa-folder-open Fs14 White"
+                                                 actionListener="#{radicacionBacking.searchAction}"
+                                                 process="@this, consultaPanel" update="growl consultaDataTable"
+                                                 styleClass="PurpleButton" />
+                            </f:facet>
+                        </p:toolbar>
+
+                        <p:spacer />
+
+                        <h:panelGrid id="consultaPanel" width="100%">
+
+                            <p:fieldset legend="Parámetros">
+                                <h:panelGrid columns="4" width="100%">
+                                    <p:outputLabel value="Fecha Inicial" for="fechaInicial" />
+                                    <p:calendar id="fechaInicial"
+                                                value="#{radicacionBacking.fechaInicial}" 
+                                                label="Fecha Inicial" readonlyInput="false"
+                                                pattern="dd/MM/yyyy" showOn="button" navigator="true"
+                                                locale="es" maxdate="#{pedidosBacking.today}"
+                                                style="width: 250px;" required="true"/>
+                                    <h:outputLabel value="Fecha Final" for="fechaFinal" />
+                                    <p:calendar id="fechaFinal"
+                                                value="#{radicacionBacking.fechaFinal}" 
+                                                label="Fecha Final" readonlyInput="false" pattern="dd/MM/yyyy"
+                                                showOn="button" navigator="true" locale="es" 
+                                                maxdate="#{pedidosBacking.today}"
+                                                required="true"/>
+                                    <p:outputLabel value="Estado" for="estadosOrdenCompraId" />
+                                    <p:selectOneMenu id="estadosOrdenCompraId" 
+                                                     label="Estado" style="width:250px;"
+                                                     value="#{radicacionBacking.idEstado}"
+                                                     filter="true" filterMatchMode="contains">
+                                        <f:selectItems
+                                            value="#{radicacionBacking.listEstadosArchivoRadicado}" />
+                                    </p:selectOneMenu>
+                                </h:panelGrid>
+                            </p:fieldset>
+
+                            <p:spacer />
+
+                            <p:dataTable id="consultaDataTable" var="ent"
+                                         value="#{radicacionBacking.modelArchivosRadicados}" rowKey="#{ent.id}"
+                                         emptyMessage="#{msg.msg_empty}" reflow="true" scrollable="true"
+                                         selection="#{radicacionBacking.selectedArchivosRadicados}"
+                                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+                                         paginator="true" rows="20">
+
+                                <f:facet name="{Exporters}">
+                                    <h:commandLink rendered="#{not empty radicacionBacking.listArchivosRadicados}">
+                                        <p:graphicImage name="/demo/images/excel.png" width="24"/>
+                                        <p:dataExporter type="xls" target="consultaDataTable" fileName="archivo" />
+                                    </h:commandLink>
+
+                                    <h:commandLink rendered="#{not empty radicacionBacking.listArchivosRadicados}">
+                                        <p:graphicImage name="/demo/images/pdf.png" width="24"/>
+                                        <p:dataExporter type="pdf" target="consultaDataTable" fileName="archivo"/>
+                                    </h:commandLink>
+
+                                    <h:commandLink rendered="#{not empty radicacionBacking.listArchivosRadicados}">
+                                        <p:graphicImage name="/demo/images/csv.png" width="24"/>
+                                        <p:dataExporter type="csv" target="consultaDataTable" fileName="archivo" />
+                                    </h:commandLink>
+                                </f:facet>
+
+                                <p:column headerText="Nombre del Archivo"
+                                          sortBy="#{ent.nombreArchivo}" filterBy="#{ent.nombreArchivo}"
+                                          filterMatchMode="contains">
+                                    <h:outputText value="#{ent.nombreArchivo}" />
+                                </p:column>
+
+                                <p:column headerText="Fecha de Radicación"
+                                          sortBy="#{ent.fechaRadicacion}">
+                                    <h:outputText
+                                        value="#{ent.fechaRadicacion}" />
+                                </p:column>
+
+                                <p:column headerText="Usuario de Radicación"
+                                          sortBy="#{ent.usuarioRadicacion}">
+                                    <h:outputText value="#{ent.usuarioRadicacion}" />
+                                </p:column>
+
+                                <p:column headerText="Estado">
+                                    <h:outputText value="#{radicacionBacking.getEstado(ent.idEstadoArchivoRadicado)}" />
+                                </p:column>
+
+                                <p:column headerText="Acciones" width="20%" exportable="false">
+                                    <p:commandLink value="Ver LOG" 
+                                                   action="#{radicacionBacking.searchLOGAction}"
+                                                   update="form:dlgLOG"
+                                                   oncomplete="PF('dlgLOGVar').show();">
+                                        <f:setPropertyActionListener value="#{ent}" 
+                                                                     target="#{radicacionBacking.selectedArchivosRadicados}" />
+                                    </p:commandLink>
+                                </p:column>
+                            </p:dataTable>
+                        </h:panelGrid>
+
+                        <p:dialog header="LOG de Carga" id="dlgLOG"
+                                  widgetVar="dlgLOGVar" modal="true" showEffect="fade"
+                                  hideEffect="fade" resizable="false" width="800">
+
+                            <h:panelGrid columns="1" width="100%">
+                                <p:dataTable var="ent"
+                                             value="#{radicacionBacking.modelLog}"
+                                             emptyMessage="#{msg.msg_empty}" reflow="true" 
+                                             scrollable="true" rowKey="#{ent.id}"
+                                             paginator="true" rows="20">
+
+                                    <p:column headerText="Fila"
+                                              sortBy="#{ent.idOrdenVentaSecundaria}" 
+                                              width="10%">
+                                        <h:outputText value="#{ent.idOrdenVentaSecundaria}" />
+                                    </p:column>
+                                    <p:column headerText="Código de Error"
+                                              sortBy="#{ent.codigoMensaje}"
+                                              filterBy="#{ent.codigoMensaje}"
+                                              filterMatchMode="contains"
+                                              width="20%">
+                                        <h:outputText
+                                            value="#{ent.codigoMensaje}" />
+                                    </p:column>
+                                    <p:column headerText="Mensaje de Error"
+                                              sortBy="#{ent.mensaje}"
+                                              filterBy="#{ent.mensaje}"
+                                              filterMatchMode="contains">
+                                        <h:outputText
+                                            value="#{ent.mensaje}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </h:panelGrid>
+
+                        </p:dialog>
+
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function handleComplete(xhr, status, args) {
+                if (!args.validationFailed) {
+                    PF('dlgLOGVar').hide();
+                }
+            }
+        </script>
+
+    </ui:define>
+
+</ui:composition>
